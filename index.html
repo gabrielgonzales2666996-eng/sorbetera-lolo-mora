@@ -1,0 +1,1880 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="La Sorbetera de Lolo Mora — Heladería artesanal desde 1901. El sabor más antiguo de Costa Rica, ubicada en el Mercado Central de San José." />
+  <title>La Sorbetera de Lolo Mora | Desde 1901</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet" />
+
+  <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <style>
+    /* ─── RESET & BASE ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cafe:    #3B2314;
+      --crema:   #F5EDD8;
+      --dorado:  #C9993A;
+      --canela:  #A0632A;
+      --marfil:  #FDFAF4;
+      --cafe-claro: #5C3820;
+      --cafe-oscuro: #221409;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      background: var(--cafe-oscuro);
+      color: var(--crema);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ─── CUSTOM CURSOR ────────────────────────────────────────── */
+    #cursor {
+      position: fixed;
+      width: 32px;
+      height: 32px;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s ease;
+      font-size: 24px;
+      line-height: 1;
+      user-select: none;
+    }
+
+    #cursor-dot {
+      position: fixed;
+      width: 6px;
+      height: 6px;
+      background: var(--dorado);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+    }
+
+    /* ─── NAVBAR ───────────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      padding: 1.2rem 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.4s ease, padding 0.4s ease, box-shadow 0.4s ease;
+    }
+
+    nav.scrolled {
+      background: rgba(33, 16, 5, 0.97);
+      padding: 0.8rem 2.5rem;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.4);
+      backdrop-filter: blur(8px);
+    }
+
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.5rem;
+      color: var(--dorado);
+      text-decoration: none;
+      letter-spacing: 0.02em;
+      transition: color 0.3s;
+    }
+    .nav-logo:hover { color: var(--crema); }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: var(--crema);
+      text-decoration: none;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      position: relative;
+      opacity: 0.85;
+      transition: opacity 0.3s;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -3px; left: 0;
+      width: 0; height: 1px;
+      background: var(--dorado);
+      transition: width 0.3s ease;
+    }
+    .nav-links a:hover { opacity: 1; }
+    .nav-links a:hover::after { width: 100%; }
+
+    .lang-toggle {
+      display: flex;
+      gap: 0.4rem;
+      align-items: center;
+    }
+    .lang-btn {
+      background: none;
+      border: 1px solid rgba(201,153,58,0.4);
+      color: var(--crema);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.85rem;
+      padding: 0.25rem 0.6rem;
+      cursor: none;
+      transition: all 0.3s;
+      letter-spacing: 0.05em;
+    }
+    .lang-btn.active, .lang-btn:hover {
+      background: var(--dorado);
+      border-color: var(--dorado);
+      color: var(--cafe);
+    }
+
+    /* Hamburger */
+    .nav-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: none;
+      background: none;
+      border: none;
+      padding: 4px;
+    }
+    .nav-toggle span {
+      width: 26px; height: 2px;
+      background: var(--crema);
+      transition: all 0.3s;
+    }
+
+    /* ─── HERO ─────────────────────────────────────────────────── */
+    #hero {
+      min-height: 100vh;
+      position: relative;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      background: var(--cafe-oscuro);
+    }
+
+    /* Paper texture overlay */
+    #hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: 0.6;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    #hero-canvas {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      padding: 0 6vw;
+      max-width: 55%;
+      padding-top: 80px;
+    }
+
+    .hero-since {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1.1rem;
+      color: var(--dorado);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      margin-bottom: 0.8rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.3s forwards;
+    }
+
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: clamp(2.8rem, 5.5vw, 5rem);
+      line-height: 1.1;
+      color: var(--marfil);
+      margin-bottom: 1.2rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.5s forwards;
+    }
+
+    .hero-title span { color: var(--dorado); }
+
+    .hero-subtitle {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.1rem, 2vw, 1.5rem);
+      color: var(--crema);
+      opacity: 0;
+      margin-bottom: 2.5rem;
+      font-weight: 300;
+      letter-spacing: 0.05em;
+      animation: fadeUp 0.8s ease 0.7s forwards;
+    }
+
+    .hero-cta {
+      display: inline-block;
+      padding: 1rem 2.5rem;
+      border: 1.5px solid var(--dorado);
+      color: var(--dorado);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.9s forwards;
+      transition: color 0.4s;
+    }
+
+    .hero-cta::before {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 100%; height: 0%;
+      background: var(--dorado);
+      transition: height 0.4s ease;
+      z-index: -1;
+    }
+    .hero-cta:hover { color: var(--cafe); }
+    .hero-cta:hover::before { height: 100%; }
+
+    .scroll-indicator {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      opacity: 0;
+      animation: fadeUp 1s ease 1.5s forwards;
+    }
+
+    .scroll-indicator span {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(245,237,216,0.5);
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--dorado), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+
+    /* ─── SECTION BASE ─────────────────────────────────────────── */
+    section { position: relative; }
+
+    .section-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 6rem 2rem;
+    }
+
+    .section-label {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 0.9rem;
+      color: var(--dorado);
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin-bottom: 0.8rem;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      line-height: 1.15;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ─── REVEAL ANIMATIONS ───────────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-left {
+      opacity: 0;
+      transform: translateX(-40px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .reveal-left.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .reveal-right {
+      opacity: 0;
+      transform: translateX(40px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .reveal-right.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    /* ─── HISTORIA ──────────────────────────────────────────────── */
+    #historia {
+      background: var(--crema);
+      color: var(--cafe);
+    }
+
+    #historia .section-label { color: var(--canela); }
+    #historia .section-title { color: var(--cafe); }
+
+    .historia-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+      margin-bottom: 4rem;
+    }
+
+    .historia-text p {
+      font-size: 1.15rem;
+      line-height: 1.85;
+      color: var(--cafe-claro);
+      margin-bottom: 1.2rem;
+    }
+
+    .historia-quote {
+      border-left: 3px solid var(--dorado);
+      padding: 1.5rem 2rem;
+      margin: 2rem 0;
+      background: rgba(201,153,58,0.08);
+      border-radius: 0 8px 8px 0;
+    }
+    .historia-quote p {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.4rem;
+      color: var(--cafe) !important;
+      line-height: 1.5;
+      margin: 0 !important;
+    }
+    .historia-quote cite {
+      display: block;
+      margin-top: 0.8rem;
+      font-size: 0.9rem;
+      color: var(--canela);
+      letter-spacing: 0.1em;
+      font-style: normal;
+      text-transform: uppercase;
+    }
+
+    /* Años counter */
+    .counter-display {
+      text-align: center;
+      padding: 2rem;
+    }
+    .counter-number {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3rem, 7vw, 6rem);
+      color: var(--canela);
+      line-height: 1;
+    }
+    .counter-label {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1.3rem;
+      color: var(--cafe-claro);
+      margin-top: 0.5rem;
+    }
+
+    /* 3D canvas historia */
+    #historia-canvas {
+      width: 100%;
+      height: 380px;
+      border-radius: 8px;
+    }
+
+    /* Timeline */
+    .timeline {
+      position: relative;
+      margin: 3rem 0;
+      padding: 1.5rem 0;
+    }
+
+    .timeline-track {
+      position: absolute;
+      top: 50%;
+      left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(to right, var(--dorado), var(--canela));
+      transform: translateY(-50%);
+    }
+
+    .timeline-items {
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+      gap: 1rem;
+    }
+
+    .timeline-item {
+      flex: 1;
+      text-align: center;
+      position: relative;
+    }
+
+    .timeline-dot {
+      width: 14px; height: 14px;
+      background: var(--dorado);
+      border-radius: 50%;
+      margin: 0 auto 1rem;
+      border: 3px solid var(--crema);
+      box-shadow: 0 0 0 2px var(--dorado);
+    }
+
+    .timeline-year {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      color: var(--cafe);
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+
+    .timeline-desc {
+      font-size: 0.85rem;
+      color: var(--cafe-claro);
+      line-height: 1.4;
+    }
+
+    /* ─── MENÚ ─────────────────────────────────────────────────── */
+    #menu {
+      background: var(--cafe);
+    }
+
+    #menu .section-title { color: var(--dorado); }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+
+    .menu-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(201,153,58,0.2);
+      border-radius: 4px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      transition: border-color 0.3s, box-shadow 0.3s;
+      transform-style: preserve-3d;
+      will-change: transform;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .menu-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(201,153,58,0.05), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .menu-card:hover::before { opacity: 1; }
+    .menu-card:hover {
+      border-color: rgba(201,153,58,0.6);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    .menu-card-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    .menu-card-name {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.3rem;
+      color: var(--crema);
+      margin-bottom: 0.4rem;
+    }
+
+    .menu-card-size {
+      font-size: 0.9rem;
+      color: rgba(245,237,216,0.6);
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+    }
+
+    .menu-card-price {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      color: var(--dorado);
+    }
+
+    /* Ingredientes */
+    .ingredientes {
+      margin-top: 4rem;
+      text-align: center;
+    }
+    .ingredientes-title {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.8rem;
+      color: var(--crema);
+      margin-bottom: 2rem;
+    }
+    .ingredientes-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.5rem;
+    }
+    .ingrediente-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      min-width: 100px;
+    }
+    .ingrediente-icon {
+      width: 60px; height: 60px;
+      border: 1px solid rgba(201,153,58,0.4);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+    }
+    .ingrediente-name {
+      font-size: 0.85rem;
+      color: rgba(245,237,216,0.7);
+      text-align: center;
+      letter-spacing: 0.05em;
+    }
+
+    /* ─── GALERÍA ──────────────────────────────────────────────── */
+    #galeria {
+      background: #2A1A0D;
+    }
+
+    #galeria .section-title { color: var(--crema); }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-auto-rows: 200px;
+      gap: 0.75rem;
+      margin-top: 3rem;
+    }
+
+    .gallery-item {
+      overflow: hidden;
+      border-radius: 3px;
+      cursor: none;
+      position: relative;
+    }
+
+    .gallery-item:nth-child(1) { grid-column: span 5; grid-row: span 2; }
+    .gallery-item:nth-child(2) { grid-column: span 4; grid-row: span 1; }
+    .gallery-item:nth-child(3) { grid-column: span 3; grid-row: span 1; }
+    .gallery-item:nth-child(4) { grid-column: span 4; grid-row: span 2; }
+    .gallery-item:nth-child(5) { grid-column: span 3; grid-row: span 1; }
+    .gallery-item:nth-child(6) { grid-column: span 4; grid-row: span 1; }
+    .gallery-item:nth-child(7) { grid-column: span 5; grid-row: span 1; }
+    .gallery-item:nth-child(8) { grid-column: span 3; grid-row: span 2; }
+    .gallery-item:nth-child(9) { grid-column: span 4; grid-row: span 1; }
+
+    .gallery-item img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s ease, filter 0.4s ease;
+      filter: sepia(20%) brightness(0.9);
+    }
+    .gallery-item:hover img {
+      transform: scale(1.08);
+      filter: sepia(0%) brightness(1);
+    }
+
+    .gallery-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(33,16,5,0);
+      transition: background 0.4s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .gallery-overlay span {
+      color: white;
+      font-size: 1.8rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .gallery-item:hover .gallery-overlay { background: rgba(33,16,5,0.4); }
+    .gallery-item:hover .gallery-overlay span { opacity: 1; }
+
+    /* Lightbox */
+    #lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+    #lightbox.open { display: flex; }
+    #lightbox img {
+      max-width: 90vw;
+      max-height: 90vh;
+      object-fit: contain;
+      border: 1px solid rgba(201,153,58,0.3);
+    }
+    #lightbox-close {
+      position: absolute;
+      top: 1.5rem; right: 2rem;
+      font-size: 2rem;
+      color: var(--crema);
+      cursor: none;
+      background: none;
+      border: none;
+      font-family: serif;
+    }
+
+    /* ─── UBICACIÓN ────────────────────────────────────────────── */
+    #ubicacion {
+      background: var(--cafe-oscuro);
+    }
+
+    #ubicacion .section-title { color: var(--crema); }
+
+    .ubicacion-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    .map-container {
+      border-radius: 4px;
+      overflow: hidden;
+      height: 380px;
+      border: 1px solid rgba(201,153,58,0.2);
+    }
+    .map-container iframe {
+      width: 100%; height: 100%;
+      filter: grayscale(30%) sepia(20%);
+      border: none;
+    }
+
+    .ubicacion-info h3 {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.6rem;
+      color: var(--dorado);
+      margin-bottom: 1.5rem;
+    }
+
+    .info-item {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      align-items: flex-start;
+    }
+    .info-icon {
+      font-size: 1.4rem;
+      min-width: 2rem;
+      text-align: center;
+    }
+    .info-text {
+      font-size: 1.05rem;
+      color: var(--crema);
+      line-height: 1.6;
+    }
+    .info-text strong {
+      display: block;
+      color: var(--dorado);
+      margin-bottom: 0.2rem;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .mercado-note {
+      margin-top: 2rem;
+      padding: 1.2rem 1.5rem;
+      border: 1px solid rgba(201,153,58,0.25);
+      border-radius: 4px;
+      background: rgba(201,153,58,0.05);
+      font-style: italic;
+      color: var(--crema);
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    /* ─── CONTACTO ─────────────────────────────────────────────── */
+    #contacto {
+      background: var(--cafe-claro);
+    }
+
+    #contacto .section-title { color: var(--crema); }
+
+    .contacto-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: start;
+    }
+
+    .social-links {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .social-link {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      color: var(--crema);
+      text-decoration: none;
+      font-size: 1.1rem;
+      padding: 1rem 1.5rem;
+      border: 1px solid rgba(245,237,216,0.15);
+      border-radius: 4px;
+      transition: all 0.3s;
+    }
+    .social-link:hover {
+      border-color: var(--dorado);
+      background: rgba(201,153,58,0.08);
+      transform: translateX(6px);
+    }
+    .social-link .social-icon {
+      font-size: 1.5rem;
+      transition: transform 0.3s;
+    }
+    .social-link:hover .social-icon { transform: scale(1.2) rotate(-5deg); }
+
+    .contacto-pregunta {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.4rem;
+      color: var(--crema);
+      margin-bottom: 1.5rem;
+      line-height: 1.4;
+    }
+
+    /* Form */
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .form-group label {
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(245,237,216,0.6);
+    }
+    .form-group input,
+    .form-group textarea {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(245,237,216,0.15);
+      border-radius: 3px;
+      padding: 0.8rem 1rem;
+      color: var(--crema);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+      outline: none;
+      resize: vertical;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: var(--dorado);
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: rgba(245,237,216,0.3);
+    }
+
+    .form-submit {
+      padding: 1rem 2rem;
+      background: var(--dorado);
+      border: none;
+      color: var(--cafe);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: none;
+      transition: background 0.3s, transform 0.2s;
+      border-radius: 2px;
+    }
+    .form-submit:hover {
+      background: var(--canela);
+      transform: translateY(-2px);
+    }
+    .form-submit:active { transform: translateY(0); }
+
+    /* ─── FOOTER ───────────────────────────────────────────────── */
+    footer {
+      background: var(--cafe-oscuro);
+      border-top: 1px solid rgba(201,153,58,0.15);
+      padding: 3rem 2rem;
+    }
+
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 3rem;
+      margin-bottom: 2rem;
+    }
+
+    .footer-brand p {
+      font-size: 0.95rem;
+      color: rgba(245,237,216,0.5);
+      line-height: 1.7;
+      margin-top: 0.8rem;
+    }
+
+    .footer-logo {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.6rem;
+      color: var(--dorado);
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-links h4, .footer-hours h4 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--dorado);
+      margin-bottom: 1rem;
+    }
+
+    .footer-links ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .footer-links a {
+      color: rgba(245,237,216,0.5);
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: color 0.3s;
+    }
+    .footer-links a:hover { color: var(--crema); }
+
+    .footer-hours p {
+      color: rgba(245,237,216,0.5);
+      font-size: 0.95rem;
+      line-height: 1.8;
+    }
+
+    .footer-bottom {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .footer-bottom p {
+      color: rgba(245,237,216,0.35);
+      font-size: 0.85rem;
+    }
+
+    /* ─── KEYFRAMES ────────────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.4; transform: scaleY(1); }
+      50%       { opacity: 1;   transform: scaleY(1.2); }
+    }
+
+    /* ─── RESPONSIVE ───────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .historia-layout,
+      .ubicacion-layout,
+      .contacto-layout {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .hero-content { max-width: 100%; }
+
+      .gallery-grid {
+        grid-template-columns: repeat(6, 1fr);
+        grid-auto-rows: 160px;
+      }
+      .gallery-item:nth-child(1) { grid-column: span 6; grid-row: span 2; }
+      .gallery-item:nth-child(2) { grid-column: span 3; }
+      .gallery-item:nth-child(3) { grid-column: span 3; }
+      .gallery-item:nth-child(4) { grid-column: span 4; }
+      .gallery-item:nth-child(5) { grid-column: span 2; }
+      .gallery-item:nth-child(6) { grid-column: span 3; }
+      .gallery-item:nth-child(7) { grid-column: span 3; }
+      .gallery-item:nth-child(8) { grid-column: span 3; }
+      .gallery-item:nth-child(9) { grid-column: span 3; }
+
+      .footer-inner { grid-template-columns: 1fr 1fr; }
+
+      .timeline-items { flex-direction: column; gap: 1.5rem; }
+      .timeline-track { display: none; }
+    }
+
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .nav-links.open {
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        inset: 0;
+        background: rgba(33,16,5,0.98);
+        align-items: center;
+        justify-content: center;
+        gap: 2rem;
+        z-index: 999;
+      }
+      .nav-links.open a { font-size: 1.3rem; }
+      .nav-toggle { display: flex; }
+
+      .gallery-grid { grid-template-columns: 1fr 1fr; }
+      .gallery-item { grid-column: span 1 !important; grid-row: span 1 !important; }
+      .footer-inner { grid-template-columns: 1fr; }
+
+      body { cursor: auto; }
+      #cursor, #cursor-dot { display: none; }
+    }
+
+    /* Form submit feedback */
+    .form-success {
+      display: none;
+      padding: 1rem;
+      background: rgba(201,153,58,0.15);
+      border: 1px solid var(--dorado);
+      border-radius: 3px;
+      color: var(--dorado);
+      font-style: italic;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ CURSOR PERSONALIZADO ══════════════════════════════════ -->
+<div id="cursor">🍦</div>
+<div id="cursor-dot"></div>
+
+<!-- ═══ LIGHTBOX ══════════════════════════════════════════════ -->
+<div id="lightbox" role="dialog" aria-modal="true" aria-label="Imagen ampliada">
+  <button id="lightbox-close" aria-label="Cerrar">✕</button>
+  <img id="lightbox-img" src="" alt="" />
+</div>
+
+<!-- ═══ NAVBAR ════════════════════════════════════════════════ -->
+<nav id="navbar" aria-label="Navegación principal">
+  <a href="#hero" class="nav-logo">Lolo Mora</a>
+  <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links" id="nav-links" role="list">
+    <li><a href="#inicio" data-i18n="nav_inicio">Inicio</a></li>
+    <li><a href="#historia" data-i18n="nav_historia">Historia</a></li>
+    <li><a href="#menu" data-i18n="nav_menu">Menú</a></li>
+    <li><a href="#galeria" data-i18n="nav_galeria">Galería</a></li>
+    <li><a href="#ubicacion" data-i18n="nav_ubicacion">Ubicación</a></li>
+    <li><a href="#contacto" data-i18n="nav_contacto">Contacto</a></li>
+    <li>
+      <div class="lang-toggle" aria-label="Selector de idioma">
+        <button class="lang-btn active" id="btn-es" onclick="setLang('es')">ES</button>
+        <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+      </div>
+    </li>
+  </ul>
+</nav>
+
+<!-- ═══ HERO ══════════════════════════════════════════════════ -->
+<section id="hero" id="inicio">
+  <canvas id="hero-canvas" aria-hidden="true"></canvas>
+  <div class="hero-content">
+    <p class="hero-since" data-i18n="hero_since">Desde 1901</p>
+    <h1 class="hero-title">
+      La Sorbetera<br>de <span>Lolo Mora</span>
+    </h1>
+    <p class="hero-subtitle" data-i18n="hero_subtitle">El sabor más antiguo de Costa Rica</p>
+    <a href="#menu" class="hero-cta" data-i18n="hero_cta">Ver nuestro menú</a>
+  </div>
+  <div class="scroll-indicator" aria-hidden="true">
+    <span data-i18n="scroll_hint">Deslizá</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ═══ HISTORIA ═════════════════════════════════════════════ -->
+<section id="historia">
+  <div class="section-inner">
+    <p class="section-label reveal" data-i18n="hist_label">Nuestra Historia</p>
+    <div class="historia-layout">
+      <div class="historia-text reveal-left">
+        <h2 class="section-title" data-i18n="hist_title">Más de 120 años<br>de tradición artesanal</h2>
+        <p data-i18n="hist_p1">En 1901, un hombre visionario conocido cariñosamente como Don Lolo instaló su sorbetera en el corazón del Mercado Central de San José y comenzó a batir a mano el helado más singular de Costa Rica.</p>
+        <p data-i18n="hist_p2">Cuatro generaciones después, la receta permanece inalterada. La misma vainilla, la misma canela, el mismo clavo de olor y nuez moscada. La misma rosa de jamaica que tiñe de un lila delicado cada copa.</p>
+        <p data-i18n="hist_p3">Declarado Patrimonio Cultural, visitado por millones de turistas y featured en los medios internacionales más importantes. Y sin embargo, cada copa se sigue haciendo exactamente igual que en 1901.</p>
+        <div class="historia-quote">
+          <p data-i18n="hist_quote">"La receta nunca ha cambiado en más de 120 años"</p>
+          <cite data-i18n="hist_quote_attr">— La familia Mora, cuarta generación</cite>
+        </div>
+        <div class="counter-display">
+          <div class="counter-number" id="year-counter">1901</div>
+          <div class="counter-label" data-i18n="hist_counter_label">años de historia artesanal</div>
+        </div>
+      </div>
+      <div class="reveal-right">
+        <canvas id="historia-canvas" aria-label="Sorbetera artesanal en 3D"></canvas>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="timeline reveal">
+      <div class="timeline-items">
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-year">1901</div>
+          <div class="timeline-desc" data-i18n="tl_1">Don Lolo funda la sorbetera en el Mercado Central</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-year">1940s</div>
+          <div class="timeline-desc" data-i18n="tl_2">La segunda generación toma las riendas del negocio familiar</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-year">1990s</div>
+          <div class="timeline-desc" data-i18n="tl_3">La tercera generación, misma receta, más fama local</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-year">2010s</div>
+          <div class="timeline-desc" data-i18n="tl_4">Fama internacional — Luisito Comunica y 5M+ vistas</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-year" data-i18n="tl_5_year">Hoy</div>
+          <div class="timeline-desc" data-i18n="tl_5">4ta generación. Patrimonio Cultural de Costa Rica</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══ MENÚ ══════════════════════════════════════════════════ -->
+<section id="menu">
+  <div class="section-inner">
+    <p class="section-label reveal" style="color:rgba(201,153,58,0.7);" data-i18n="menu_label">Nuestras Presentaciones</p>
+    <h2 class="section-title reveal" data-i18n="menu_title">Nuestro Helado</h2>
+
+    <div class="menu-grid">
+      <!-- Cards -->
+      <div class="menu-card" data-tilt>
+        <span class="menu-card-icon" aria-hidden="true">🍦</span>
+        <div class="menu-card-name" data-i18n="menu_1_name">Copa Pequeña</div>
+        <div class="menu-card-size">4 onzas</div>
+        <div class="menu-card-price">₡1.750</div>
+      </div>
+      <div class="menu-card" data-tilt>
+        <span class="menu-card-icon" aria-hidden="true">🍨</span>
+        <div class="menu-card-name" data-i18n="menu_2_name">Copa Mediana</div>
+        <div class="menu-card-size">7 onzas</div>
+        <div class="menu-card-price">₡2.800</div>
+      </div>
+      <div class="menu-card" data-tilt>
+        <span class="menu-card-icon" aria-hidden="true">🧁</span>
+        <div class="menu-card-name" data-i18n="menu_3_name">Copa Grande</div>
+        <div class="menu-card-size">12 onzas</div>
+        <div class="menu-card-price">₡4.200</div>
+      </div>
+      <div class="menu-card" data-tilt>
+        <span class="menu-card-icon" aria-hidden="true">🏺</span>
+        <div class="menu-card-name" data-i18n="menu_4_name">Familiar</div>
+        <div class="menu-card-size" data-i18n="menu_4_size">1/8 de galón</div>
+        <div class="menu-card-price">₡6.500</div>
+      </div>
+      <div class="menu-card" data-tilt>
+        <span class="menu-card-icon" aria-hidden="true">🥤</span>
+        <div class="menu-card-name" data-i18n="menu_5_name">Granizado</div>
+        <div class="menu-card-size" data-i18n="menu_5_size">Con leche en polvo</div>
+        <div class="menu-card-price">₡1.200</div>
+      </div>
+      <div class="menu-card" data-tilt>
+        <span class="menu-card-icon" aria-hidden="true">🍓</span>
+        <div class="menu-card-name" data-i18n="menu_6_name">Ensalada de Frutas</div>
+        <div class="menu-card-size" data-i18n="menu_6_size">Con helado artesanal</div>
+        <div class="menu-card-price">₡3.500</div>
+      </div>
+    </div>
+
+    <!-- Ingredientes -->
+    <div class="ingredientes reveal">
+      <p class="ingredientes-title" data-i18n="ing_title">El sabor que nos define</p>
+      <div class="ingredientes-grid">
+        <div class="ingrediente-item">
+          <div class="ingrediente-icon" aria-hidden="true">🌸</div>
+          <div class="ingrediente-name" data-i18n="ing_1">Vainilla</div>
+        </div>
+        <div class="ingrediente-item">
+          <div class="ingrediente-icon" aria-hidden="true">🌿</div>
+          <div class="ingrediente-name" data-i18n="ing_2">Canela</div>
+        </div>
+        <div class="ingrediente-item">
+          <div class="ingrediente-icon" aria-hidden="true">🌰</div>
+          <div class="ingrediente-name" data-i18n="ing_3">Clavo de olor</div>
+        </div>
+        <div class="ingrediente-item">
+          <div class="ingrediente-icon" aria-hidden="true">✨</div>
+          <div class="ingrediente-name" data-i18n="ing_4">Nuez moscada</div>
+        </div>
+        <div class="ingrediente-item">
+          <div class="ingrediente-icon" aria-hidden="true">🌺</div>
+          <div class="ingrediente-name" data-i18n="ing_5">Rosa de jamaica</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ GALERÍA ══════════════════════════════════════════════ -->
+<section id="galeria">
+  <div class="section-inner">
+    <p class="section-label reveal" style="color:rgba(201,153,58,0.7);" data-i18n="gal_label">Momentos en el Mercado</p>
+    <h2 class="section-title reveal" data-i18n="gal_title">Un sabor que se ve,<br>se siente y se recuerda</h2>
+    <div class="gallery-grid">
+      <div class="gallery-item reveal" onclick="openLightbox(this)">
+        <img src="https://images.unsplash.com/photo-1567206563114-c179706f0280?w=800&q=80" alt="Copa de helado artesanal de Lolo Mora" loading="lazy" />
+        <div class="gallery-overlay"><span>+</span></div>
+      </div>
+      <div class="gallery-item reveal" onclick="openLightbox(this)">
+        <img src="https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=600&q=80" alt="Sorbetera artesanal tradicional" loading="lazy" />
+        <div class="gallery-overlay"><span>+</span></div>
+      </div>
+      <div class="gallery-item reveal" onclick="openLightbox(this)">
+        <img src="https://images.unsplash.com/photo-1488477181946-6428a0291777?w=500&q=80" alt="Helado con especias artesanales" loading="lazy" />
+        <div class="gallery-overlay"><span>+</span></div>
+      </div>
+      <div class="gallery-item reveal" onclick="openLightbox(this)">
+        <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600&q=80" alt="Ambiente del Mercado Central de San José" loading="lazy" />
+        <div class="gallery-overlay"><span>+</span></div>
+      </div>
+      <div class="gallery-item reveal" onclick="openLightbox(this)">
+        <img src="https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=500&q=80" alt="Helado artesanal en copa" loading="lazy" />
+        <div class="gallery-overlay"><span>+</span></div>
+      </div>
+      <div class="gallery-item reveal" onclick="openLightbox(this)">
+        <img src="https://images.unsplash.com/photo-1551024506-0bccd828d307?w=600&q=80" alt="Preparación del helado tradicional" loading="lazy" />
+        <div class="gallery-overlay"><span>+</span></div>
+      </div>
+      <div class="gallery-item reveal" onclick="openLightbox(this)">
+        <img src="https://images.unsplash.com/photo-1559622214-f8a9850965bb?w=700&q=80" alt="Local histórico de la sorbetera" loading="lazy" />
+        <div class="gallery-overlay"><span>+</span></div>
+      </div>
+      <div class="gallery-item reveal" onclick="openLightbox(this)">
+        <img src="https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?w=500&q=80" alt="Especias de vainilla y canela" loading="lazy" />
+        <div class="gallery-overlay"><span>+</span></div>
+      </div>
+      <div class="gallery-item reveal" onclick="openLightbox(this)">
+        <img src="https://images.unsplash.com/photo-1576506295286-5cda18df43e7?w=600&q=80" alt="Helados artesanales de colores" loading="lazy" />
+        <div class="gallery-overlay"><span>+</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ UBICACIÓN ════════════════════════════════════════════ -->
+<section id="ubicacion">
+  <div class="section-inner">
+    <p class="section-label reveal" data-i18n="ubi_label">Encóntranos</p>
+    <h2 class="section-title reveal" data-i18n="ubi_title">En el corazón<br>de San José</h2>
+    <div class="ubicacion-layout">
+      <div class="map-container reveal-left">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3929.8574742!2d-84.08361!3d9.93444!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8fa0e37eeee3f6c3%3A0xa7d0b2d9c0d2a0c!2sMercado%20Central%20de%20San%20Jos%C3%A9!5e0!3m2!1ses!2scr!4v1"
+          allowfullscreen=""
+          loading="lazy"
+          title="Mapa del Mercado Central de San José"
+          referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+      </div>
+      <div class="reveal-right">
+        <div class="ubicacion-info">
+          <h3 data-i18n="ubi_heading">¿Cómo llegarnos?</h3>
+          <div class="info-item">
+            <div class="info-icon" aria-hidden="true">📍</div>
+            <div class="info-text">
+              <strong data-i18n="ubi_dir_label">Dirección</strong>
+              Mercado Central de San José<br>Avenida Central, Calles 6 y 8<br>San José, Costa Rica
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-icon" aria-hidden="true">🕘</div>
+            <div class="info-text">
+              <strong data-i18n="ubi_hours_label">Horario</strong>
+              <span data-i18n="ubi_hours">Lunes a Sábado: 9:00 a.m. — 6:00 p.m.</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-icon" aria-hidden="true">🚌</div>
+            <div class="info-text">
+              <strong data-i18n="ubi_bus_label">Transporte Público</strong>
+              <span data-i18n="ubi_bus">Múltiples rutas del bus pasan por Avenida Central. La estación del Tren Urbano queda a 5 minutos caminando.</span>
+            </div>
+          </div>
+          <div class="mercado-note">
+            <span data-i18n="ubi_note">"Nos encontrás en el corazón del Mercado Central, el mismo puesto donde Don Lolo comenzó en 1901."</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CONTACTO ══════════════════════════════════════════════ -->
+<section id="contacto">
+  <div class="section-inner">
+    <p class="section-label reveal" data-i18n="contact_label">Conversemos</p>
+    <h2 class="section-title reveal" data-i18n="contact_title">Contacto y Redes</h2>
+    <div class="contacto-layout">
+      <div class="reveal-left">
+        <p class="contacto-pregunta" data-i18n="contact_pregunta">¿Tenés preguntas? Con gusto te respondemos.</p>
+        <div class="social-links">
+          <a href="https://facebook.com" target="_blank" rel="noopener" class="social-link" aria-label="Facebook de La Sorbetera de Lolo Mora">
+            <span class="social-icon" aria-hidden="true">📘</span>
+            <span>La Sorbetera de Lolo Mora</span>
+          </a>
+          <a href="https://instagram.com" target="_blank" rel="noopener" class="social-link" aria-label="Instagram de La Sorbetera de Lolo Mora">
+            <span class="social-icon" aria-hidden="true">📸</span>
+            <span>@sorbeteradeLolo</span>
+          </a>
+        </div>
+      </div>
+      <div class="reveal-right">
+        <form class="contact-form" id="contact-form" onsubmit="handleSubmit(event)" novalidate>
+          <div class="form-group">
+            <label for="nombre" data-i18n="form_name_label">Nombre</label>
+            <input type="text" id="nombre" name="nombre" required autocomplete="name"
+              placeholder="Tu nombre" data-i18n-placeholder="form_name_placeholder" aria-required="true" />
+          </div>
+          <div class="form-group">
+            <label for="email" data-i18n="form_email_label">Correo electrónico</label>
+            <input type="email" id="email" name="email" required autocomplete="email"
+              placeholder="tu@correo.com" aria-required="true" />
+          </div>
+          <div class="form-group">
+            <label for="mensaje" data-i18n="form_msg_label">Mensaje</label>
+            <textarea id="mensaje" name="mensaje" rows="4" required
+              placeholder="¿En qué te podemos ayudar?" data-i18n-placeholder="form_msg_placeholder" aria-required="true"></textarea>
+          </div>
+          <button type="submit" class="form-submit" data-i18n="form_submit">Enviar mensaje</button>
+          <div class="form-success" id="form-success" aria-live="polite">
+            <span data-i18n="form_success">¡Mensaje enviado! Te responderemos pronto. 🍦</span>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ════════════════════════════════════════════════ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-logo">Lolo Mora</div>
+      <p data-i18n="footer_desc">Heladería artesanal fundada en 1901 por Don Lolo en el Mercado Central de San José. Cuatro generaciones, una sola receta.</p>
+      <p style="margin-top:0.8rem;" data-i18n="footer_love">Hecho con amor artesanal en Costa Rica 🇨🇷</p>
+    </div>
+    <div class="footer-links">
+      <h4 data-i18n="footer_links_title">Secciones</h4>
+      <ul>
+        <li><a href="#historia" data-i18n="nav_historia">Historia</a></li>
+        <li><a href="#menu" data-i18n="nav_menu">Menú</a></li>
+        <li><a href="#galeria" data-i18n="nav_galeria">Galería</a></li>
+        <li><a href="#ubicacion" data-i18n="nav_ubicacion">Ubicación</a></li>
+        <li><a href="#contacto" data-i18n="nav_contacto">Contacto</a></li>
+      </ul>
+    </div>
+    <div class="footer-hours">
+      <h4 data-i18n="ubi_hours_label">Horario</h4>
+      <p data-i18n="footer_hours">Lunes — Sábado<br>9:00 a.m. — 6:00 p.m.</p>
+      <p style="margin-top:1rem; color:rgba(245,237,216,0.4); font-size:0.85rem;" data-i18n="footer_closed">Domingos: cerrado</p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© La Sorbetera de Lolo Mora, <span data-i18n="footer_since">desde 1901</span></p>
+    <p data-i18n="footer_heritage">Patrimonio Cultural de Costa Rica</p>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════════════════ -->
+<script>
+// ─── i18n ──────────────────────────────────────────────────
+const translations = {
+  es: {
+    nav_inicio: 'Inicio', nav_historia: 'Historia', nav_menu: 'Menú',
+    nav_galeria: 'Galería', nav_ubicacion: 'Ubicación', nav_contacto: 'Contacto',
+    hero_since: 'Desde 1901',
+    hero_subtitle: 'El sabor más antiguo de Costa Rica',
+    hero_cta: 'Ver nuestro menú',
+    scroll_hint: 'Deslizá',
+    hist_label: 'Nuestra Historia',
+    hist_title: 'Más de 120 años\nde tradición artesanal',
+    hist_p1: 'En 1901, un hombre visionario conocido cariñosamente como Don Lolo instaló su sorbetera en el corazón del Mercado Central de San José y comenzó a batir a mano el helado más singular de Costa Rica.',
+    hist_p2: 'Cuatro generaciones después, la receta permanece inalterada. La misma vainilla, la misma canela, el mismo clavo de olor y nuez moscada. La misma rosa de jamaica que tiñe de un lila delicado cada copa.',
+    hist_p3: 'Declarado Patrimonio Cultural, visitado por millones de turistas y featured en los medios internacionales más importantes. Y sin embargo, cada copa se sigue haciendo exactamente igual que en 1901.',
+    hist_quote: '"La receta nunca ha cambiado en más de 120 años"',
+    hist_quote_attr: '— La familia Mora, cuarta generación',
+    hist_counter_label: 'años de historia artesanal',
+    tl_1: 'Don Lolo funda la sorbetera en el Mercado Central',
+    tl_2: 'La segunda generación toma las riendas del negocio familiar',
+    tl_3: 'La tercera generación, misma receta, más fama local',
+    tl_4: 'Fama internacional — Luisito Comunica y 5M+ vistas',
+    tl_5_year: 'Hoy', tl_5: '4ta generación. Patrimonio Cultural de Costa Rica',
+    menu_label: 'Nuestras Presentaciones', menu_title: 'Nuestro Helado',
+    menu_1_name: 'Copa Pequeña', menu_2_name: 'Copa Mediana', menu_3_name: 'Copa Grande',
+    menu_4_name: 'Familiar', menu_4_size: '1/8 de galón',
+    menu_5_name: 'Granizado', menu_5_size: 'Con leche en polvo',
+    menu_6_name: 'Ensalada de Frutas', menu_6_size: 'Con helado artesanal',
+    ing_title: 'El sabor que nos define',
+    ing_1: 'Vainilla', ing_2: 'Canela', ing_3: 'Clavo de olor',
+    ing_4: 'Nuez moscada', ing_5: 'Rosa de jamaica',
+    gal_label: 'Momentos en el Mercado',
+    gal_title: 'Un sabor que se ve,\nse siente y se recuerda',
+    ubi_label: 'Encóntranos', ubi_title: 'En el corazón\nde San José',
+    ubi_heading: '¿Cómo llegarnos?',
+    ubi_dir_label: 'Dirección', ubi_hours_label: 'Horario', ubi_bus_label: 'Transporte Público',
+    ubi_hours: 'Lunes a Sábado: 9:00 a.m. — 6:00 p.m.',
+    ubi_bus: 'Múltiples rutas del bus pasan por Avenida Central. La estación del Tren Urbano queda a 5 minutos caminando.',
+    ubi_note: '"Nos encontrás en el corazón del Mercado Central, el mismo puesto donde Don Lolo comenzó en 1901."',
+    contact_label: 'Conversemos', contact_title: 'Contacto y Redes',
+    contact_pregunta: '¿Tenés preguntas? Con gusto te respondemos.',
+    form_name_label: 'Nombre', form_name_placeholder: 'Tu nombre',
+    form_email_label: 'Correo electrónico',
+    form_msg_label: 'Mensaje', form_msg_placeholder: '¿En qué te podemos ayudar?',
+    form_submit: 'Enviar mensaje',
+    form_success: '¡Mensaje enviado! Te responderemos pronto. 🍦',
+    footer_desc: 'Heladería artesanal fundada en 1901 por Don Lolo en el Mercado Central de San José. Cuatro generaciones, una sola receta.',
+    footer_love: 'Hecho con amor artesanal en Costa Rica 🇨🇷',
+    footer_links_title: 'Secciones',
+    footer_hours: 'Lunes — Sábado\n9:00 a.m. — 6:00 p.m.',
+    footer_closed: 'Domingos: cerrado',
+    footer_since: 'desde 1901',
+    footer_heritage: 'Patrimonio Cultural de Costa Rica',
+  },
+  en: {
+    nav_inicio: 'Home', nav_historia: 'History', nav_menu: 'Menu',
+    nav_galeria: 'Gallery', nav_ubicacion: 'Location', nav_contacto: 'Contact',
+    hero_since: 'Since 1901',
+    hero_subtitle: 'The oldest flavor in Costa Rica',
+    hero_cta: 'See our menu',
+    scroll_hint: 'Scroll',
+    hist_label: 'Our History',
+    hist_title: 'Over 120 years\nof artisan tradition',
+    hist_p1: 'In 1901, a visionary man affectionately known as Don Lolo set up his ice cream maker in the heart of San José\'s Central Market and began hand-churning the most singular ice cream in Costa Rica.',
+    hist_p2: 'Four generations later, the recipe remains unchanged. The same vanilla, the same cinnamon, the same cloves and nutmeg. The same hibiscus that tints each scoop a delicate lilac.',
+    hist_p3: 'Declared Cultural Heritage, visited by millions of tourists and featured in the world\'s most important media. And yet, every scoop is still made exactly as it was in 1901.',
+    hist_quote: '"The recipe has never changed in over 120 years"',
+    hist_quote_attr: '— The Mora family, fourth generation',
+    hist_counter_label: 'years of artisan tradition',
+    tl_1: 'Don Lolo founds the ice cream parlor in the Central Market',
+    tl_2: 'Second generation takes over the family business',
+    tl_3: 'Third generation, same recipe, growing fame',
+    tl_4: 'International fame — Luisito Comunica and 5M+ views',
+    tl_5_year: 'Today', tl_5: '4th generation. Cultural Heritage of Costa Rica',
+    menu_label: 'Our Portions', menu_title: 'Our Ice Cream',
+    menu_1_name: 'Small Cup', menu_2_name: 'Medium Cup', menu_3_name: 'Large Cup',
+    menu_4_name: 'Family Size', menu_4_size: '1/8 gallon',
+    menu_5_name: 'Granita', menu_5_size: 'With powdered milk',
+    menu_6_name: 'Fruit Salad', menu_6_size: 'With artisan ice cream',
+    ing_title: 'The flavor that defines us',
+    ing_1: 'Vanilla', ing_2: 'Cinnamon', ing_3: 'Cloves',
+    ing_4: 'Nutmeg', ing_5: 'Hibiscus',
+    gal_label: 'Moments at the Market',
+    gal_title: 'A flavor you see,\nfeel, and remember',
+    ubi_label: 'Find Us', ubi_title: 'At the heart\nof San José',
+    ubi_heading: 'How to get here?',
+    ubi_dir_label: 'Address', ubi_hours_label: 'Hours', ubi_bus_label: 'Public Transport',
+    ubi_hours: 'Monday to Saturday: 9:00 a.m. — 6:00 p.m.',
+    ubi_bus: 'Multiple bus routes pass through Central Avenue. The Urban Train station is a 5-minute walk away.',
+    ubi_note: '"Find us at the heart of the Central Market, the very spot where Don Lolo began in 1901."',
+    contact_label: 'Let\'s Talk', contact_title: 'Contact & Social Media',
+    contact_pregunta: 'Have questions? We\'d love to hear from you.',
+    form_name_label: 'Name', form_name_placeholder: 'Your name',
+    form_email_label: 'Email address',
+    form_msg_label: 'Message', form_msg_placeholder: 'How can we help you?',
+    form_submit: 'Send message',
+    form_success: 'Message sent! We\'ll get back to you soon. 🍦',
+    footer_desc: 'Artisan ice cream parlor founded in 1901 by Don Lolo in the Central Market of San José. Four generations, one single recipe.',
+    footer_love: 'Made with artisan love in Costa Rica 🇨🇷',
+    footer_links_title: 'Sections',
+    footer_hours: 'Monday — Saturday\n9:00 a.m. — 6:00 p.m.',
+    footer_closed: 'Sundays: closed',
+    footer_since: 'since 1901',
+    footer_heritage: 'Cultural Heritage of Costa Rica',
+  }
+};
+
+let currentLang = 'es';
+
+function setLang(lang) {
+  currentLang = lang;
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (translations[lang][key]) el.textContent = translations[lang][key];
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (translations[lang][key]) el.placeholder = translations[lang][key];
+  });
+  document.getElementById('btn-es').classList.toggle('active', lang === 'es');
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+}
+
+// ─── CUSTOM CURSOR ─────────────────────────────────────────
+const cursor = document.getElementById('cursor');
+const cursorDot = document.getElementById('cursor-dot');
+let mouseX = 0, mouseY = 0;
+let dotX = 0, dotY = 0;
+
+document.addEventListener('mousemove', e => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  cursor.style.left = mouseX + 'px';
+  cursor.style.top  = mouseY + 'px';
+});
+
+function animateDot() {
+  dotX += (mouseX - dotX) * 0.12;
+  dotY += (mouseY - dotY) * 0.12;
+  cursorDot.style.left = dotX + 'px';
+  cursorDot.style.top  = dotY + 'px';
+  requestAnimationFrame(animateDot);
+}
+animateDot();
+
+// Scale on hover
+document.querySelectorAll('a, button, .menu-card, .gallery-item, .social-link').forEach(el => {
+  el.addEventListener('mouseenter', () => cursor.style.transform = 'translate(-50%,-50%) scale(1.5)');
+  el.addEventListener('mouseleave', () => cursor.style.transform = 'translate(-50%,-50%) scale(1)');
+});
+
+// ─── NAVBAR ───────────────────────────────────────────────
+const navbar = document.getElementById('navbar');
+let lastScroll = 0;
+
+function onScroll() {
+  const s = window.scrollY;
+  navbar.classList.toggle('scrolled', s > 60);
+  lastScroll = s;
+  checkReveal();
+  checkCounter();
+}
+
+window.addEventListener('scroll', debounce(onScroll, 8), { passive: true });
+
+// Mobile menu
+document.getElementById('nav-toggle').addEventListener('click', () => {
+  document.getElementById('nav-links').classList.toggle('open');
+});
+document.querySelectorAll('.nav-links a').forEach(a =>
+  a.addEventListener('click', () => document.getElementById('nav-links').classList.remove('open'))
+);
+
+// ─── SCROLL REVEAL ────────────────────────────────────────
+function checkReveal() {
+  const wh = window.innerHeight;
+  document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => {
+    const rect = el.getBoundingClientRect();
+    if (rect.top < wh * 0.88) el.classList.add('visible');
+  });
+}
+
+// ─── YEAR COUNTER ─────────────────────────────────────────
+let counterDone = false;
+function checkCounter() {
+  if (counterDone) return;
+  const el = document.getElementById('year-counter');
+  if (!el) return;
+  const rect = el.getBoundingClientRect();
+  if (rect.top < window.innerHeight * 0.85) {
+    counterDone = true;
+    animateCounter(el, 0, 124, 2000); // 124 years of history
+  }
+}
+
+function animateCounter(el, from, to, duration) {
+  const start = performance.now();
+  function step(now) {
+    const t = Math.min((now - start) / duration, 1);
+    const ease = t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
+    el.textContent = Math.round(from + (to - from) * ease);
+    if (t < 1) requestAnimationFrame(step);
+    else el.textContent = to;
+  }
+  requestAnimationFrame(step);
+}
+
+// ─── 3D TILT CARDS ────────────────────────────────────────
+document.querySelectorAll('[data-tilt]').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const rect = card.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const rx = (e.clientY - cy) / (rect.height / 2) * -10;
+    const ry = (e.clientX - cx) / (rect.width  / 2) *  10;
+    card.style.transform = `perspective(800px) rotateX(${rx}deg) rotateY(${ry}deg) translateZ(6px)`;
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = 'perspective(800px) rotateX(0) rotateY(0) translateZ(0)';
+  });
+});
+
+// ─── LIGHTBOX ─────────────────────────────────────────────
+function openLightbox(item) {
+  const img = item.querySelector('img');
+  document.getElementById('lightbox-img').src = img.src;
+  document.getElementById('lightbox-img').alt = img.alt;
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+document.getElementById('lightbox').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeLightbox();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeLightbox();
+});
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ─── FORM ─────────────────────────────────────────────────
+function handleSubmit(e) {
+  e.preventDefault();
+  const success = document.getElementById('form-success');
+  success.style.display = 'block';
+  e.target.reset();
+  setTimeout(() => { success.style.display = 'none'; }, 4000);
+}
+
+// ─── DEBOUNCE ─────────────────────────────────────────────
+function debounce(fn, ms) {
+  let t;
+  return function(...args) {
+    clearTimeout(t);
+    t = setTimeout(() => fn.apply(this, args), ms);
+  };
+}
+
+// ─── THREE.JS: HERO ───────────────────────────────────────
+(function initHero() {
+  const canvas = document.getElementById('hero-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(50, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+  camera.position.set(0, 0, 6);
+
+  function resize() {
+    const w = canvas.parentElement.clientWidth;
+    const h = canvas.parentElement.clientHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Lights
+  const ambient = new THREE.AmbientLight(0xfdf0d0, 0.6);
+  scene.add(ambient);
+
+  const lamp = new THREE.PointLight(0xfde8a0, 2.5, 12);
+  lamp.position.set(0, 4, 3);
+  scene.add(lamp);
+
+  const rim = new THREE.DirectionalLight(0xc9993a, 0.8);
+  rim.position.set(-3, 2, 1);
+  scene.add(rim);
+
+  // Ice cream group
+  const group = new THREE.Group();
+  scene.add(group);
+  group.position.set(2.5, -0.3, 0);
+
+  // Cup (truncated cone)
+  const cupGeo = new THREE.CylinderGeometry(0.55, 0.35, 1.2, 32);
+  const cupMat = new THREE.MeshPhongMaterial({
+    color: 0xfdfaf4,
+    specular: 0x888888,
+    shininess: 40,
+    transparent: true,
+    opacity: 0.92
+  });
+  const cup = new THREE.Mesh(cupGeo, cupMat);
+  cup.position.y = -0.8;
+  group.add(cup);
+
+  // Ice cream scoop 1
+  const scoop1Geo = new THREE.SphereGeometry(0.58, 32, 32);
+  const iceMat = new THREE.MeshPhongMaterial({
+    color: 0xf5e6c8,
+    specular: 0xffffff,
+    shininess: 80
+  });
+  const scoop1 = new THREE.Mesh(scoop1Geo, iceMat);
+  scoop1.position.y = -0.12;
+  scoop1.scale.set(1, 0.88, 1);
+  group.add(scoop1);
+
+  // Scoop 2 (smaller, on top)
+  const scoop2Geo = new THREE.SphereGeometry(0.42, 32, 32);
+  const iceMat2 = new THREE.MeshPhongMaterial({
+    color: 0xd4a0a0,
+    specular: 0xffffff,
+    shininess: 80
+  });
+  const scoop2 = new THREE.Mesh(scoop2Geo, iceMat2);
+  scoop2.position.y = 0.6;
+  scoop2.scale.set(1, 0.85, 1);
+  group.add(scoop2);
+
+  // Canela "swirl" on top
+  const swirlGeo = new THREE.TorusGeometry(0.18, 0.045, 12, 40, Math.PI * 3);
+  const swirlMat = new THREE.MeshPhongMaterial({ color: 0xa0632a });
+  const swirl = new THREE.Mesh(swirlGeo, swirlMat);
+  swirl.rotation.x = -Math.PI / 2;
+  swirl.position.y = 0.95;
+  group.add(swirl);
+
+  // Wafer stick
+  const waferGeo = new THREE.CylinderGeometry(0.035, 0.035, 1.1, 8);
+  const waferMat = new THREE.MeshPhongMaterial({ color: 0xd4a464 });
+  const wafer = new THREE.Mesh(waferGeo, waferMat);
+  wafer.rotation.z = 0.35;
+  wafer.position.set(0.3, 0.5, 0.3);
+  group.add(wafer);
+
+  // Particles (golden spice particles)
+  const particleCount = 180;
+  const pGeo = new THREE.BufferGeometry();
+  const pPos = new Float32Array(particleCount * 3);
+  const pSizes = new Float32Array(particleCount);
+
+  for (let i = 0; i < particleCount; i++) {
+    pPos[i*3]   = (Math.random() - 0.5) * 18;
+    pPos[i*3+1] = (Math.random() - 0.5) * 10;
+    pPos[i*3+2] = (Math.random() - 0.5) * 6 - 2;
+    pSizes[i]   = Math.random() * 3 + 1;
+  }
+
+  pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+  pGeo.setAttribute('size', new THREE.BufferAttribute(pSizes, 1));
+
+  const pMat = new THREE.PointsMaterial({
+    color: 0xc9993a,
+    size: 0.06,
+    transparent: true,
+    opacity: 0.6,
+    sizeAttenuation: true
+  });
+  const particles = new THREE.Points(pGeo, pMat);
+  scene.add(particles);
+
+  let t = 0;
+  function animate() {
+    requestAnimationFrame(animate);
+    t += 0.008;
+
+    group.rotation.y = t * 0.5;
+    group.position.y = -0.3 + Math.sin(t * 0.7) * 0.12;
+
+    // Animate lamp for dynamic lighting
+    lamp.position.x = Math.sin(t * 0.4) * 2;
+    lamp.position.z = Math.cos(t * 0.4) * 2 + 2;
+
+    // Drift particles
+    const pos = particles.geometry.attributes.position.array;
+    for (let i = 0; i < particleCount; i++) {
+      pos[i*3+1] += 0.003;
+      if (pos[i*3+1] > 5) pos[i*3+1] = -5;
+      pos[i*3]   += Math.sin(t + i) * 0.001;
+    }
+    particles.geometry.attributes.position.needsUpdate = true;
+    particles.rotation.y = t * 0.02;
+
+    renderer.render(scene, camera);
+  }
+  animate();
+})();
+
+// ─── THREE.JS: HISTORIA (Sorbetera) ──────────────────────
+(function initHistoria() {
+  const canvas = document.getElementById('historia-canvas');
+  if (!canvas) return;
+
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(50, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+  camera.position.set(0, 0, 5);
+
+  function resize() {
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+    if (w === 0 || h === 0) return;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Lights
+  const ambient = new THREE.AmbientLight(0xfdf0d0, 0.8);
+  scene.add(ambient);
+  const dir = new THREE.DirectionalLight(0xc9993a, 1.2);
+  dir.position.set(2, 3, 2);
+  scene.add(dir);
+
+  // Sorbetera group
+  const group = new THREE.Group();
+  scene.add(group);
+
+  // Wooden bucket (main cylinder)
+  const bucketMat = new THREE.MeshPhongMaterial({
+    color: 0x7a4520,
+    specular: 0x331100,
+    shininess: 20
+  });
+  const bucketGeo = new THREE.CylinderGeometry(0.9, 0.8, 1.8, 24);
+  const bucket = new THREE.Mesh(bucketGeo, bucketMat);
+  group.add(bucket);
+
+  // Metal rings on bucket
+  const ringMat = new THREE.MeshPhongMaterial({ color: 0x888866, specular: 0xffffff, shininess: 60 });
+  [-0.55, 0, 0.55].forEach(y => {
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.92, 0.05, 8, 24), ringMat);
+    ring.rotation.x = Math.PI / 2;
+    ring.position.y = y;
+    group.add(ring);
+  });
+
+  // Inner cylinder (the metal container)
+  const innerMat = new THREE.MeshPhongMaterial({ color: 0xbbbbaa, specular: 0xffffff, shininess: 80 });
+  const inner = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 1.9, 20), innerMat);
+  group.add(inner);
+
+  // Lid
+  const lid = new THREE.Mesh(new THREE.CylinderGeometry(0.92, 0.92, 0.12, 24), bucketMat);
+  lid.position.y = 0.95;
+  group.add(lid);
+
+  // Handle (manivela)
+  const handleMat = new THREE.MeshPhongMaterial({ color: 0xc9993a, specular: 0xffffff, shininess: 80 });
+
+  // Vertical rod
+  const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 1.2, 8), handleMat);
+  rod.position.set(0, 1.55, 0);
+  group.add(rod);
+
+  // Horizontal arm
+  const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.8, 8), handleMat);
+  arm.rotation.z = Math.PI / 2;
+  arm.position.set(0.4, 2.15, 0);
+  group.add(arm);
+
+  // Handle knob
+  const knob = new THREE.Mesh(new THREE.SphereGeometry(0.1, 12, 12), handleMat);
+  knob.position.set(0.8, 2.15, 0);
+  group.add(knob);
+
+  group.position.y = -0.2;
+  group.scale.setScalar(0.9);
+
+  let t = 0;
+  function animate() {
+    requestAnimationFrame(animate);
+    t += 0.01;
+    group.rotation.y = t * 0.4;
+    group.position.y = -0.2 + Math.sin(t * 0.5) * 0.08;
+    renderer.render(scene, camera);
+  }
+  animate();
+})();
+
+// ─── INIT ─────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  checkReveal();
+  onScroll();
+});
+</script>
+</body>
+</html>
